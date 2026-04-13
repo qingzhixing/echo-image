@@ -46,7 +46,7 @@ pub fn print_help() {
 }
 
 pub fn print_version() {
-    println!("🏁{}: {}", project_info::NAME, project_info::DESCRIPTION);
-    println!("✨Author: {}", project_info::AUTHOR);
-    println!("🔗Github: {}", project_info::REPOSITORY);
+    println!("🏁 {}: {}", project_info::NAME, project_info::DESCRIPTION);
+    println!("✨ Author: {}", project_info::AUTHOR);
+    println!("🔗 Github: {}", project_info::REPOSITORY);
 }
