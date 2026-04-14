@@ -1,17 +1,13 @@
 use std::{io::Write, path::Path, thread::sleep, time::Duration};
 
 use color_eyre::eyre::{self, Context};
-use crossterm::{
-    cursor::MoveToNextLine,
-    execute,
-    terminal::{disable_raw_mode, enable_raw_mode},
-};
+use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
 use image::ImageReader;
-use log::debug;
 use ratatui::{
     Terminal,
-    layout::Rect,
+    layout::{Alignment, Rect},
     prelude::CrosstermBackend,
+    text::Line,
     widgets::{Block, Borders},
 };
 use ratatui_image::{StatefulImage, picker::Picker};
@@ -42,21 +38,23 @@ pub fn render_image(image_path: &str) -> eyre::Result<()> {
         .to_string_lossy()
         .to_string();
 
+    // 获取stdout 光标位置
+    let cursor_pos = terminal.get_cursor_position()?;
+
     // render
     terminal.draw(|frame| {
         // 计算一个合适的渲染区域（Rect）
         let frame_area = frame.area();
         let render_area = Rect {
-            x: frame_area.x,
-            y: frame_area.y,
+            x: 0,
+            y: cursor_pos.y + 2,
             width: frame_area.width / 4,
             height: frame_area.height / 4,
         };
 
-        debug!("Frame area: {:?}", frame_area);
-        debug!("Calculated render area: {:?}", render_area);
+        let title = Line::from(file_name).alignment(Alignment::Center);
 
-        let block = Block::default().borders(Borders::ALL).title(file_name);
+        let block = Block::default().borders(Borders::ALL).title(title);
         let inner_area = block.inner(render_area);
 
         frame.render_widget(block, render_area);
@@ -72,10 +70,6 @@ pub fn render_image(image_path: &str) -> eyre::Result<()> {
     sleep(Duration::from_millis(100));
 
     disable_raw_mode()?;
-
-    // 9. 将光标移动到图片的下一行（行首）
-    execute!(std::io::stdout(), MoveToNextLine(1))?;
-    std::io::stdout().flush()?;
 
     Ok(())
 }
