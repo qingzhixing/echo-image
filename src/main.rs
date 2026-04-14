@@ -1,4 +1,5 @@
 use color_eyre::eyre::{self};
+use log::trace;
 
 mod argument_handler;
 mod image_renderer;
@@ -6,6 +7,10 @@ mod project_info;
 
 fn main() -> eyre::Result<()> {
     color_eyre::install()?;
+    env_logger::init();
+
+    trace!("Starting echo-image...");
+
     let arguments = match argument_handler::parse_arguments(&mut std::env::args()) {
         Ok(arguments) => arguments,
         Err(err) => {
