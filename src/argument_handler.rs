@@ -38,8 +38,11 @@ pub fn parse_arguments(
 }
 
 pub fn print_help() {
-    println!("Usage: echo-image [image_path] [-h | --help] [-v | --version]");
-    println!("Options:");
+    println!(
+        "💭 Usage: {}: [image_path] [-h | --help] [-v | --version]",
+        project_info::NAME
+    );
+    println!("🌈 Options:");
     println!("  -h, --help  Show this help message");
     println!("  -v, --version Show version version");
     println!("  image_path  Path to the image file");
