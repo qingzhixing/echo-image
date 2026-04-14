@@ -1,9 +1,8 @@
 use std::path::Path;
 
-use color_eyre::eyre::{self, Context};
+use color_eyre::eyre::{self};
 use crossterm::event::{self, Event, KeyCode, KeyEvent};
 use image::ImageReader;
-use log::debug;
 use ratatui::{
     layout::Constraint,
     style::Stylize,
@@ -13,12 +12,8 @@ use ratatui::{
 use ratatui_image::{StatefulImage, picker::Picker};
 
 pub fn render_image(image_path: &str) -> eyre::Result<()> {
-    let picker =
-        Picker::from_query_stdio().context("Failed to initialize terminal graphics protocol")?;
-    let image = ImageReader::open(image_path)
-        .wrap_err("Failed to open image file")?
-        .decode()
-        .context("Failed to decode image")?;
+    let picker = Picker::from_query_stdio()?;
+    let image = ImageReader::open(image_path)?.decode()?;
     let mut protocol = picker.new_resize_protocol(image);
 
     ratatui::run(|terminal| -> eyre::Result<()> {
@@ -28,7 +23,7 @@ pub fn render_image(image_path: &str) -> eyre::Result<()> {
                     .area()
                     .centered(Constraint::Ratio(4, 5), Constraint::Ratio(4, 5));
                 let file_name = Path::new(image_path).file_name().unwrap().to_string_lossy();
-                debug!("file_name: {}", file_name);
+
                 let block = Block::default()
                     .title(Line::from(file_name).centered())
                     .title_bottom(Line::from("Press Esc to exit").centered().yellow())
