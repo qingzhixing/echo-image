@@ -1,7 +1,10 @@
 use std::{io::Write, path::Path, thread::sleep, time::Duration};
 
 use color_eyre::eyre::{self, Context};
-use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
+use crossterm::{
+    execute,
+    terminal::{ScrollUp, disable_raw_mode, enable_raw_mode},
+};
 use image::ImageReader;
 use ratatui::{
     Terminal,
@@ -15,6 +18,22 @@ use ratatui_image::{StatefulImage, picker::Picker};
 pub fn render_image(image_path: &str) -> eyre::Result<()> {
     // 启用 raw mode（为了让 ratatui 正常工作，但实际不需要捕获输入）
     enable_raw_mode()?;
+
+    // 屏幕滚动控制：如果光标在底部且图片可能超出可视区，就先滚动屏幕腾出空间
+    let terminal_size = crossterm::terminal::size()?;
+    let cursor_pos = crossterm::cursor::position()?;
+
+    let img_height_in_rows = terminal_size.1 / 4;
+    let needed_rows = img_height_in_rows + 4; // 额外留一些边距
+
+    // 如果光标位于底部且所需高度可能超出可视区，就向上滚动 needed_rows
+    if cursor_pos.1 + needed_rows >= terminal_size.1 {
+        let scroll_rows = needed_rows;
+        execute!(std::io::stdout(), ScrollUp(scroll_rows))?;
+    }
+
+    // 重新获取滚动后的光标位置和终端尺寸（因为终端尺寸一般不变，但为了安全）
+    let cursor_pos = crossterm::cursor::position()?;
     let backend = CrosstermBackend::new(std::io::stdout());
     let mut terminal = Terminal::new(backend)?;
 
@@ -38,16 +57,13 @@ pub fn render_image(image_path: &str) -> eyre::Result<()> {
         .to_string_lossy()
         .to_string();
 
-    // 获取stdout 光标位置
-    let cursor_pos = terminal.get_cursor_position()?;
-
     // render
     terminal.draw(|frame| {
         // 计算一个合适的渲染区域（Rect）
         let frame_area = frame.area();
         let render_area = Rect {
             x: 0,
-            y: cursor_pos.y + 2,
+            y: cursor_pos.0 + 2,
             width: frame_area.width / 4,
             height: frame_area.height / 4,
         };
