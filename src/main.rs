@@ -1,6 +1,7 @@
 use color_eyre::eyre::{self};
 
 mod argument_handler;
+mod image_renderer;
 mod project_info;
 
 fn main() -> eyre::Result<()> {
@@ -21,7 +22,7 @@ fn main() -> eyre::Result<()> {
         return Ok(());
     }
 
-    println!("{}", arguments.image_path);
+    image_renderer::render_image(&arguments.image_path)?;
 
     Ok(())
 }
