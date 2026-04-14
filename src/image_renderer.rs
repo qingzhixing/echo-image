@@ -5,7 +5,7 @@ use crossterm::event::{self, Event, KeyCode, KeyEvent};
 use image::ImageReader;
 use log::debug;
 use ratatui::{
-    layout::{Constraint, Direction, Layout, Rect},
+    layout::Constraint,
     style::Stylize,
     text::Line,
     widgets::{Block, Borders},
