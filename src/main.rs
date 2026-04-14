@@ -1,5 +1,5 @@
 use color_eyre::eyre::{self};
-use log::trace;
+use log::{debug, trace};
 
 mod argument_handler;
 mod image_renderer;
@@ -18,6 +18,9 @@ fn main() -> eyre::Result<()> {
             return Err(err);
         }
     };
+
+    debug!("Arguments: {:?}", arguments);
+
     if arguments.need_version {
         argument_handler::print_version();
         return Ok(());
